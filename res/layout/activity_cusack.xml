@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Cusack" >
+    <TextView
+        android:id="@+id/artistName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Artist" />
+
+    <TextView
+        android:id="@+id/songName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Name" />
+
+    <TextView
+        android:id="@+id/albumName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Album" />
+
+    <ListView
+        android:id="@+id/moduleList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
