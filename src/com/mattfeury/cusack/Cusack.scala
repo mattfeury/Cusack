@@ -1,7 +1,6 @@
 package com.mattfeury.cusack
 
-import com.mattfeury.cusack.modules.LyricsModule
-import com.mattfeury.cusack.modules.ModuleAdapter
+import com.mattfeury.cusack.modules._
 import com.mattfeury.cusack.services.SongDetector
 
 import android.app.Activity
@@ -52,6 +51,7 @@ class Cusack extends Activity with SongListener with CusackReceiver {
         registerSongListener(songChanged _)
 
         val modules = List(
+            new WikipediaModule(this),
             new LyricsModule(this)
         )
 
