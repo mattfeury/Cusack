@@ -31,9 +31,15 @@ trait SongListener {
 }
 
 trait CusackReceiver <: Activity {
+    var adapter:Option[ModuleAdapter] = None
+
     def openURIIntent(uri:String) = {
         def intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri))
         startActivity(intent)
+    }
+
+    def redraw() {
+        adapter.foreach(_.notifyDataSetChanged())
     }
 }
 
@@ -54,8 +60,10 @@ class Cusack extends Activity with SongListener with CusackReceiver {
         val mReceiver = new SongDetector(this)
         setContentView(R.layout.activity_cusack)
 
-        def moduleList = findViewById(R.id.moduleList).asInstanceOf[ListView]
-        def adapter = new ModuleAdapter(this, R.layout.module_view, modules)
+        val moduleList = findViewById(R.id.moduleList).asInstanceOf[ListView]
+        val moduleAdapter = new ModuleAdapter(this, R.layout.module_view, modules)
+        adapter = Some(moduleAdapter)
+        moduleList.setAdapter(moduleAdapter)
 
         moduleList.setAdapter(adapter)
     }
