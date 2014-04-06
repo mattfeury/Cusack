@@ -44,9 +44,7 @@ object WikipediaService {
                 json = new JSONObject(response)
                 query = json.getJSONObject("query")
                 pages = query.getJSONObject("pages")
-                keys = pages.keys()
-                stringKeys = keys.asInstanceOf[java.util.Iterator[String]]
-                page <- stringKeys.toList.headOption
+                page <- pages.keys().asInstanceOf[java.util.Iterator[String]].toList.headOption
                 pageObject = pages.getJSONObject(page)
                 extract = pageObject.get("extract")
             } yield {
