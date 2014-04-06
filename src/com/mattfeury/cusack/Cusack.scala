@@ -28,6 +28,7 @@ trait SongListener {
         songListenerHandlers ::= fn
     } 
 }
+object SongListener extends SongListener
 
 trait CusackReceiver <: Activity {
     var adapter:Option[ModuleAdapter] = None
@@ -42,22 +43,21 @@ trait CusackReceiver <: Activity {
     }
 }
 
-class Cusack extends Activity with SongListener with CusackReceiver {
+class Cusack extends Activity with CusackReceiver {
 
     override def onCreate(savedInstanceState : Bundle) = {
         super.onCreate(savedInstanceState)
 
-        // Setup listeners
-        registerSongListener(songChanged _)
+        // Setup listeners. Does using this as a singleton make us more prone to memory leaks?
+        SongListener.registerSongListener(songChanged _)
 
         val modules = List(
             new WikipediaModule(this),
             new LyricsModule(this)
         )
 
-        modules.foreach(module => registerSongListener(module.songChanged _))
+        modules.foreach(module => SongListener.registerSongListener(module.songChanged _))
 
-        val mReceiver = new SongDetector(this)
         setContentView(R.layout.activity_cusack)
 
         val moduleList = findViewById(R.id.moduleList).asInstanceOf[ListView]
@@ -65,7 +65,8 @@ class Cusack extends Activity with SongListener with CusackReceiver {
         adapter = Some(moduleAdapter)
         moduleList.setAdapter(moduleAdapter)
 
-        moduleList.setAdapter(adapter)
+        // Redraw everything. TODO we should make sure that all the modules have updated first
+        SongListener.registerSongListener(_ => moduleAdapter.notifyDataSetChanged())
     }
 
     override def onCreateOptionsMenu(menu : Menu) : Boolean = {
