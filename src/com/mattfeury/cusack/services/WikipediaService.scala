@@ -11,6 +11,8 @@ import org.json.JSONObject
 
 import com.mattfeury.cusack.util.Utils
 
+case class WikipediaSongInfo(title:String, extract:String)
+
 object WikipediaService {
 
     final lazy val URL = "http://en.wikipedia.org/w/api.php"
@@ -32,7 +34,7 @@ object WikipediaService {
         })
     }
 
-    def getExtractForTitle(title:String) : Option[String] = {
+    def getSongInfoForTitle(title:String) : Option[WikipediaSongInfo] = {
         makeUrlCall(Map(
             ("action", "query"),
             ("prop", "extracts"),
@@ -47,18 +49,19 @@ object WikipediaService {
                 page <- pages.keys().asInstanceOf[java.util.Iterator[String]].toList.headOption
                 pageObject = pages.getJSONObject(page)
                 extract = pageObject.get("extract")
+                title = pageObject.get("title")
             } yield {
-                Utils.stripHtml(extract.toString())
+                WikipediaSongInfo(title = title.toString, extract = Utils.stripHtml(extract.toString()))
             }
         })
     }
 
-    def getExtractForKeyword(keyword:String) : Option[String]= {
+    def getSongInfoForKeyword(keyword:String) : Option[WikipediaSongInfo]= {
         val titles = getTitlesForKeyword(keyword)
 
         // Scala list views are lazily evaluated
-        val transformed = titles.view.flatMap(getExtractForTitle)
-        transformed.find(_ != "")
+        val transformed = titles.view.flatMap(getSongInfoForTitle)
+        transformed.find(_.extract != "")
     }
 
     private def makeUrlCall[T](params:Map[String, String], callback:Option[String]=>T) : T = {

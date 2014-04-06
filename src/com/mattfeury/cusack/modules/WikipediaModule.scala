@@ -4,18 +4,23 @@ import com.mattfeury.cusack.CusackReceiver
 import com.mattfeury.cusack.R
 import com.mattfeury.cusack.Song
 import com.mattfeury.cusack.services.WikipediaService
-
 import android.content.Context
 import android.os.AsyncTask
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import com.mattfeury.cusack.services.WikipediaSongInfo
+
 
 class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
-    var extract:Option[String] = None
+    var songInfo:Option[WikipediaSongInfo] = None
+
 
     override def selected = {
+        songInfo.map(songInfo => {
+            receiver.openURIIntent(WikipediaService.getUrlForTitle(songInfo.title))
+        })
     }
 
     override def songChanged(song:Song) = {
@@ -35,14 +40,15 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
 
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        val text = extract.getOrElse("-")
+        val text = songInfo.map(_.extract).getOrElse("-")
         moduleText.setText(text)
     }
 
+    // Why so many Units?
     class GetExtractTask extends AsyncTask[AnyRef, Unit, Unit] {
         // AnyRef required due to scala/android bug: http://piotrbuda.eu/2012/12/scala-and-android-asynctask-implementation-problem.html
         override def doInBackground(song:AnyRef*) = {
-            extract = WikipediaService.getExtractForKeyword(song.toList.head.asInstanceOf[Song].artist)
+            songInfo = WikipediaService.getSongInfoForKeyword(song.toList.head.asInstanceOf[Song].artist)
         }
 
         override def onPostExecute(unit:Unit) : Unit = {
