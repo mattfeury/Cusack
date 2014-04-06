@@ -15,10 +15,13 @@ trait RestService {
         val get = new HttpGet(url)
         get.setHeader("User-Agent", "Cusack Android App: mattfeury.com")
         val httpResponse = httpclient.execute(get)
-        val inputStream = httpResponse.getEntity.getContent
-        val result = if (inputStream != null) convertInputStreamToString(inputStream) else "Did not work!"
 
-        return Some(result)
+        httpResponse.getEntity().getContent() match {
+            case stream if stream != null =>
+                Some(convertInputStreamToString(stream))
+            case _ =>
+                None
+        }
     }
 
     private def convertInputStreamToString(inputStream:InputStream) : String = {
