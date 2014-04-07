@@ -1,7 +1,7 @@
 package com.mattfeury.cusack.modules
 
 import com.mattfeury.cusack.CusackReceiver
-import com.mattfeury.cusack.Song
+import com.mattfeury.cusack.music.Song
 
 import android.content.Context
 import android.util.AttributeSet

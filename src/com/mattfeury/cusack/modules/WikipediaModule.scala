@@ -2,7 +2,7 @@ package com.mattfeury.cusack.modules
 
 import com.mattfeury.cusack.CusackReceiver
 import com.mattfeury.cusack.R
-import com.mattfeury.cusack.Song
+import com.mattfeury.cusack.music.Song
 import com.mattfeury.cusack.services.WikipediaService
 import android.content.Context
 import android.os.AsyncTask

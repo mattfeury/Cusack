@@ -10,32 +10,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.ListView
 import android.widget.TextView
-
-case class Song(artist:String, name:String, album:String)
-
-trait SongListener {
-    var currentSong:Option[Song] = None
-    var songListenerHandlers:List[Song => Unit] = List()
-
-    def setCurrentSong(artist:String, name:String, album:String) = {
-        val song = Song(artist, name, album)
-        currentSong = Some(song)
-
-        runHandlers()
-    }
-
-    def registerSongListener(fn:Song => Unit) = {
-        songListenerHandlers ::= fn
-    }
-
-    def runHandlers() = currentSong match {
-        case Some(song) => songListenerHandlers.foreach(handler => handler(song))
-        case _ =>
-    }
-
-    def clearListeners() = songListenerHandlers = List()
-}
-object SongListener extends SongListener
+import android.util.Log
+import com.mattfeury.cusack.music.NowPlaying
+import com.mattfeury.cusack.music.Song
 
 trait CusackReceiver <: Activity {
     var adapter:Option[ModuleAdapter] = None
@@ -56,15 +33,15 @@ class Cusack extends Activity with CusackReceiver {
         super.onCreate(savedInstanceState)
 
         // Setup listeners. Does using this as a singleton make us more prone to memory leaks?
-        SongListener.clearListeners()
-        SongListener.registerSongListener(songChanged _)
+        NowPlaying.clearListeners()
+        NowPlaying.registerSongListener(songChanged _)
 
         val modules = List(
             new WikipediaModule(this),
             new LyricsModule(this)
         )
 
-        modules.foreach(module => SongListener.registerSongListener(module.songChanged _))
+        modules.foreach(module => NowPlaying.registerSongListener(module.songChanged _))
 
         setContentView(R.layout.activity_cusack)
 
@@ -74,9 +51,9 @@ class Cusack extends Activity with CusackReceiver {
         moduleList.setAdapter(moduleAdapter)
 
         // Redraw everything. TODO we should make sure that all the modules have updated first
-        SongListener.registerSongListener(_ => moduleAdapter.notifyDataSetChanged())
+        NowPlaying.registerSongListener(_ => moduleAdapter.notifyDataSetChanged())
 
-        SongListener.runHandlers()
+        NowPlaying.runHandlers()
     }
 
     override def onCreateOptionsMenu(menu : Menu) : Boolean = {

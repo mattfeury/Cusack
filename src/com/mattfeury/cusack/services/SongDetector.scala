@@ -1,14 +1,14 @@
 package com.mattfeury.cusack.services
 
 import scala.collection.immutable.List
-import com.mattfeury.cusack.SongListener
+import com.mattfeury.cusack.music.NowPlaying
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import com.mattfeury.cusack.Song
+import com.mattfeury.cusack.music.Song
 
 class SongDetector extends BroadcastReceiver {
 
@@ -41,7 +41,7 @@ class SongDetector extends BroadcastReceiver {
         val track = intent.getStringExtra("track");
         Log.v("tag", artist + ":" + album + ":" + track);
 
-        SongListener.setCurrentSong(artist, track, album)
+        NowPlaying.setCurrentSong(artist, track, album)
         //Toast.makeText(activity, track, Toast.LENGTH_SHORT).show();
     }
 }
