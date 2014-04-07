@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.mattfeury.cusack.services.WikipediaPageInfo
+import android.view.ViewManager
 
 
 class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
@@ -26,6 +27,7 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
 
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
+        val moduleImage = view.findViewById(R.id.moduleImage)
 
         val text = for {
             song <- currentSong
@@ -36,5 +38,6 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         }
 
         moduleText.setText(text.getOrElse(""))
+        moduleImage.getParent.asInstanceOf[ViewManager].removeView(moduleImage)
     }
 }
