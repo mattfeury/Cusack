@@ -56,7 +56,7 @@ class Cusack extends Activity with CusackReceiver {
         NowPlaying.runHandlers()
     }
 
-    override def onCreateOptionsMenu(menu : Menu) : Boolean = {
+    override def onCreateOptionsMenu(menu:Menu) : Boolean = {
         getMenuInflater().inflate(R.menu.activity_cusack, menu)
         true
     }
