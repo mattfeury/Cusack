@@ -1,5 +1,7 @@
 package com.mattfeury.cusack.util
 
+import java.net.URLEncoder
+
 import org.json.JSONArray
 
 import android.text.Html
@@ -17,4 +19,8 @@ object Utils {
     }
 
     def stripHtml(html:String) : String = Html.fromHtml(html).toString
+
+    def makeQueryString(params:Map[String, String]) : String = params.map {
+        case (key, value) => URLEncoder.encode(key) + "=" + URLEncoder.encode(value)
+    }.mkString("&")
 }

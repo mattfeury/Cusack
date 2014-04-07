@@ -65,9 +65,7 @@ object WikipediaService {
     }
 
     private def makeUrlCall[T](params:Map[String, String], callback:Option[String]=>T) : T = {
-        val url = URL + "?" + (params + ("format" -> "json")).map {
-            case (key, value) => URLEncoder.encode(key) + "=" + URLEncoder.encode(value)
-        }.mkString("&")
+        val url = URL + "?" + Utils.makeQueryString(params + ("format" -> "json"))
 
         val json = RestService.GET(url)
         callback(json)
