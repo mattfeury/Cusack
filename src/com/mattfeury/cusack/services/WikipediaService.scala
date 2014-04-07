@@ -4,16 +4,17 @@ import java.net.URLEncoder
 
 import scala.Option.option2Iterable
 import scala.collection.JavaConversions.asScalaIterator
-import scala.collection.Map
 
 import org.json.JSONArray
 import org.json.JSONObject
 
 import com.mattfeury.cusack.util.Utils
 
-case class WikipediaSongInfo(title:String, extract:String)
+case class WikipediaPageInfo(title:String, extract:String) {
+    def getUrl() = WikipediaService.getUrlForTitle(title)
+}
 
-object WikipediaService {
+trait WikipediaService {
 
     final lazy val URL = "http://en.wikipedia.org/w/api.php"
 
@@ -34,7 +35,7 @@ object WikipediaService {
         })
     }
 
-    def getSongInfoForTitle(title:String) : Option[WikipediaSongInfo] = {
+    def getPageInfoForTitle(title:String) : Option[WikipediaPageInfo] = {
         makeUrlCall(Map(
             ("action", "query"),
             ("prop", "extracts"),
@@ -51,16 +52,16 @@ object WikipediaService {
                 extract = pageObject.get("extract")
                 title = pageObject.get("title")
             } yield {
-                WikipediaSongInfo(title = title.toString, extract = Utils.stripHtml(extract.toString()))
+                WikipediaPageInfo(title = title.toString, extract = Utils.stripHtml(extract.toString()))
             }
         })
     }
 
-    def getSongInfoForKeyword(keyword:String) : Option[WikipediaSongInfo]= {
+    def getPageInfoForKeyword(keyword:String) : Option[WikipediaPageInfo]= {
         val titles = getTitlesForKeyword(keyword)
 
         // Scala list views are lazily evaluated
-        val transformed = titles.view.flatMap(getSongInfoForTitle)
+        val transformed = titles.view.flatMap(getPageInfoForTitle)
         transformed.find(_.extract != "")
     }
 
@@ -71,3 +72,5 @@ object WikipediaService {
         callback(json)
     }
 }
+
+object WikipediaService extends WikipediaService

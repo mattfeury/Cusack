@@ -62,7 +62,7 @@ class Cusack extends Activity with CusackReceiver {
     }
 
     def songChanged(song:Song) = {
-        changeSongField("artistName", song, song => song.artist)
+        changeSongField("artistName", song, song => song.artist.name)
         changeSongField("songName", song, song => song.name)
         changeSongField("albumName", song, song => song.album)
     }
