@@ -34,10 +34,10 @@ class Cusack extends Activity with CusackReceiver {
 
         // Setup listeners. Does using this as a singleton make us more prone to memory leaks?
         NowPlaying.clearListeners()
-        NowPlaying.registerSongListener(songChanged _)
 
         val modules = List(
             new ImageModule(this),
+            new SongInfoModule(this),
             new WikipediaModule(this),
             new LyricsModule(this)
         )
@@ -60,16 +60,5 @@ class Cusack extends Activity with CusackReceiver {
     override def onCreateOptionsMenu(menu:Menu) : Boolean = {
         getMenuInflater().inflate(R.menu.activity_cusack, menu)
         true
-    }
-
-    def songChanged(song:Song) = {
-        changeSongField("artistName", song, song => song.artist.name)
-        changeSongField("songName", song, song => song.name)
-        changeSongField("albumName", song, song => song.album)
-    }
-
-    private def changeSongField(viewId:String, song:Song, songFieldFactory:Song => String) = {
-        def field = findViewById(getResources().getIdentifier(viewId, "id", getPackageName())).asInstanceOf[TextView]
-        field.setText(songFieldFactory(song))
     }
 }
