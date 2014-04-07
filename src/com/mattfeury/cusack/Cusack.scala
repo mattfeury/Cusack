@@ -37,6 +37,7 @@ class Cusack extends Activity with CusackReceiver {
         NowPlaying.registerSongListener(songChanged _)
 
         val modules = List(
+            new ImageModule(this),
             new WikipediaModule(this),
             new LyricsModule(this)
         )
