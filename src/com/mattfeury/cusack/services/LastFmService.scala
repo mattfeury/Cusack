@@ -2,8 +2,11 @@ package com.mattfeury.cusack.services
 
 import com.mattfeury.cusack.util.Utils
 import org.json.JSONObject
+import android.graphics.Bitmap
 
-case class LastFmArtistInfo(name:String, imageUrl:String)
+case class LastFmArtistInfo(name:String, imageUrl:String) {
+    val imageBitmap = Utils.downloadBitmap(imageUrl)
+}
 
 trait LastFmService extends RestService {
     val API_URL = "http://ws.audioscrobbler.com/2.0/"
