@@ -9,6 +9,7 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 
+// ResourceID isn't really honored here...
 case class ModuleAdapter(context:Context, resourceId:Int, items:List[Module[Cusack]]) extends ArrayAdapter(context, resourceId, items.toArray) {
     override def getView(position:Int, convertView:View, parent:ViewGroup) : View = {
         var view = convertView
@@ -16,7 +17,7 @@ case class ModuleAdapter(context:Context, resourceId:Int, items:List[Module[Cusa
 
         if (view == null) {
             def inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
-            view = inflater.inflate(resourceId, null)
+            view = inflater.inflate(module.templateId, null)
         }
 
         module.render(view)
