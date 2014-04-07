@@ -27,7 +27,7 @@ object WikipediaService {
             for {
                 response <- response.toList
                 jsonArray = new JSONArray(response)
-                titles <- Utils.jsonArrayToList(jsonArray.getJSONArray(1))
+                titles <- Utils.jsonArrayToList[String](jsonArray.getJSONArray(1))
             } yield {
                 titles
             }
