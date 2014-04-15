@@ -57,6 +57,11 @@ trait WikipediaService {
         })
     }
 
+    def getPageTitleFromUrl(url:String) : String = {
+        // Hmm...
+        url.split("/").last
+    }
+
     def getPageInfoForKeyword(keyword:String) : Option[WikipediaPageInfo]= {
         val titles = getTitlesForKeyword(keyword)
 

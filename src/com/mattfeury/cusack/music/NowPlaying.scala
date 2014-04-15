@@ -5,11 +5,16 @@ import com.mattfeury.cusack.services.WikipediaPageInfo
 import com.mattfeury.cusack.services.WikipediaService
 import com.mattfeury.cusack.services.LastFmArtistInfo
 import com.mattfeury.cusack.services.LastFmService
+import com.mattfeury.cusack.services.MusicBrainzArtistInfo
+import com.mattfeury.cusack.services.MusicBrainzService
 
 case class Artist(
     name:String,
     var wikipediaPageInfo:Option[WikipediaPageInfo] = None,
-    var lastFmArtistInfo:Option[LastFmArtistInfo] = None
+    var lastFmArtistInfo:Option[LastFmArtistInfo] = None,
+
+    var musicBrainzId:Option[String] = None,
+    var musicBrainzArtistInfo:Option[MusicBrainzArtistInfo] = None
 )
 
 case class Song(artist:Artist, name:String, album:String) {
@@ -49,8 +54,8 @@ object NowPlaying {
         val artist = Artist(name = artistName)
 
         val artistTasks = List(
-            new GetWikipediaExtractTask(),
-            new GetLastFmArtistInfoTask()
+            new GetLastFmArtistInfoTask(),
+            new MusicBrainzArtistInfoTask()
         )
 
         artistTasks.foreach(_.execute(artist))
@@ -67,6 +72,26 @@ object NowPlaying {
     class GetLastFmArtistInfoTask extends NowPlayingTask[Artist] {
         def doTask(artist:Artist) : Unit = {
             artist.lastFmArtistInfo = LastFmService.getArtistInfo(artist.name)
+        }
+    }
+
+    class MusicBrainzArtistInfoTask extends NowPlayingTask[Artist] {
+        def doTask(artist:Artist) : Unit = {
+            artist.musicBrainzId = MusicBrainzService.getArtistId(artist.name)
+
+            artist.wikipediaPageInfo = {
+                for {
+                    id <- artist.musicBrainzId
+                    urls = MusicBrainzService.getArtistUriRelations(id)
+                    url <- urls.find(_.`type` == "wikipedia")
+                    pageTitle = WikipediaService.getPageTitleFromUrl(url.target)
+                    pageInfo <- WikipediaService.getPageInfoForTitle(pageTitle)
+                } yield {
+                    pageInfo
+                }
+            } orElse {
+                WikipediaService.getPageInfoForKeyword(artist.name)
+            }
         }
     }
 
