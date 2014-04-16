@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.TextView
 import com.mattfeury.cusack.services.WikipediaPageInfo
 import android.view.ViewManager
+import com.mattfeury.cusack.util.Utils
 
 
 class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
@@ -19,9 +20,12 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         for {
             song <- currentSong
             artist = song.artist
-            wikiInfo <- artist.wikipediaPageInfo
         } {
-            receiver.openURIIntent(wikiInfo.getUrl())
+            // If no wikipedia article, click to google search
+            val url = artist.wikipediaPageInfo.map { _.getUrl() } getOrElse {
+                "https://www.google.com/search?" + Utils.makeQueryString(Map("q" -> song.artist.name))
+            }
+            receiver.openURIIntent(url)
         }
     }
 
@@ -32,12 +36,11 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         val text = for {
             song <- currentSong
             artist = song.artist
-            wikiInfo <- artist.wikipediaPageInfo
         } yield {
-            wikiInfo.extract
+            artist.wikipediaPageInfo.map { _.extract } getOrElse "Search for artist info"
         }
 
-        moduleText.setText(text.getOrElse(""))
+        moduleText.setText(text.getOrElse("-"))
         moduleImage.getParent.asInstanceOf[ViewManager].removeView(moduleImage)
     }
 }
