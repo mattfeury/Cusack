@@ -43,7 +43,8 @@ class Cusack extends Activity with CusackReceiver {
             new ImageModule(this),
             new SongInfoModule(this),
             new WikipediaModule(this),
-            new LyricsModule(this)
+            new LyricsModule(this),
+            new TwitterModule(this)
         )
 
         modules.foreach(module => NowPlaying.registerSongListener(module.songChanged _))

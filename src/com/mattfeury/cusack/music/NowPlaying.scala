@@ -10,6 +10,8 @@ import android.util.Log
 import com.mattfeury.cusack.Cusack
 import com.mattfeury.cusack.Cusack
 import com.mattfeury.cusack.services.MusicBrainzUriRelation
+import com.mattfeury.cusack.services.TwitterInfo
+import com.mattfeury.cusack.services.TwitterService
 
 case class Artist(
     name:String,
@@ -18,6 +20,8 @@ case class Artist(
 
     var musicBrainzId:Option[String] = None,
     var musicBrainsUriRelations:Option[List[MusicBrainzUriRelation]] = None,
+
+    var twitterInfo:Option[TwitterInfo] = None
 ) {
 
     private def getUrlThatMatches(closure:MusicBrainzUriRelation=>Boolean) : Option[MusicBrainzUriRelation] = {
@@ -104,10 +108,25 @@ object NowPlaying {
             artist.musicBrainsUriRelations = artist.musicBrainzId.map(MusicBrainzService.getArtistUriRelations(_))
 
             val urlTasks = List(
+                new GetTwitterTask(),
                 new GetWikipediaExtractTask()
             )
 
             urlTasks.foreach(_.execute(artist))
+        }
+    }
+
+    class GetTwitterTask extends NowPlayingTask[Artist] {
+        def doTask(artist:Artist) : Unit = {
+            artist.twitterInfo = {
+                for {
+                    twitterUrlRelation <- artist.getTwitterUrl()
+                    handle = twitterUrlRelation.uri.getPath().substring(1)
+                    latestTweet <- TwitterService.getLatestTweet(handle)
+                } yield {
+                    TwitterInfo(handle = handle, latestTweet = latestTweet)
+                }
+            }
         }
     }
 
