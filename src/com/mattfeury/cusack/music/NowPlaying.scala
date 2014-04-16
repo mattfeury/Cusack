@@ -5,8 +5,11 @@ import com.mattfeury.cusack.services.WikipediaPageInfo
 import com.mattfeury.cusack.services.WikipediaService
 import com.mattfeury.cusack.services.LastFmArtistInfo
 import com.mattfeury.cusack.services.LastFmService
-import com.mattfeury.cusack.services.MusicBrainzArtistInfo
 import com.mattfeury.cusack.services.MusicBrainzService
+import android.util.Log
+import com.mattfeury.cusack.Cusack
+import com.mattfeury.cusack.Cusack
+import com.mattfeury.cusack.services.MusicBrainzUriRelation
 
 case class Artist(
     name:String,
@@ -14,8 +17,16 @@ case class Artist(
     var lastFmArtistInfo:Option[LastFmArtistInfo] = None,
 
     var musicBrainzId:Option[String] = None,
-    var musicBrainzArtistInfo:Option[MusicBrainzArtistInfo] = None
-)
+    var musicBrainsUriRelations:Option[List[MusicBrainzUriRelation]] = None,
+) {
+
+    private def getUrlThatMatches(closure:MusicBrainzUriRelation=>Boolean) : Option[MusicBrainzUriRelation] = {
+        musicBrainsUriRelations.flatMap(_.find(closure(_)))
+    }
+
+    def getFacebookUrl() = getUrlThatMatches(_.hasHost("facebook.com"))
+    def getTwitterUrl() = getUrlThatMatches(_.hasHost("twitter.com"))
+}
 
 case class Song(artist:Artist, name:String, album:String) {
     override def toString() = s"$artist - $name - $album"
@@ -65,7 +76,18 @@ object NowPlaying {
 
     class GetWikipediaExtractTask extends NowPlayingTask[Artist] {
         def doTask(artist:Artist) : Unit = {
-            artist.wikipediaPageInfo = WikipediaService.getPageInfoForKeyword(artist.name)
+            artist.wikipediaPageInfo = {
+                for {
+                    relations <- artist.musicBrainsUriRelations
+                    url <- relations.find(_.`type` == "wikipedia")
+                    pageTitle = WikipediaService.getPageTitleFromUrl(url.target)
+                    pageInfo <- WikipediaService.getPageInfoForTitle(pageTitle)
+                } yield {
+                    pageInfo
+                }
+            } orElse {
+                WikipediaService.getPageInfoForKeyword(artist.name)
+            }
         }
     }
 
@@ -79,19 +101,13 @@ object NowPlaying {
         def doTask(artist:Artist) : Unit = {
             artist.musicBrainzId = MusicBrainzService.getArtistId(artist.name)
 
-            artist.wikipediaPageInfo = {
-                for {
-                    id <- artist.musicBrainzId
-                    urls = MusicBrainzService.getArtistUriRelations(id)
-                    url <- urls.find(_.`type` == "wikipedia")
-                    pageTitle = WikipediaService.getPageTitleFromUrl(url.target)
-                    pageInfo <- WikipediaService.getPageInfoForTitle(pageTitle)
-                } yield {
-                    pageInfo
-                }
-            } orElse {
-                WikipediaService.getPageInfoForKeyword(artist.name)
-            }
+            artist.musicBrainsUriRelations = artist.musicBrainzId.map(MusicBrainzService.getArtistUriRelations(_))
+
+            val urlTasks = List(
+                new GetWikipediaExtractTask()
+            )
+
+            urlTasks.foreach(_.execute(artist))
         }
     }
 

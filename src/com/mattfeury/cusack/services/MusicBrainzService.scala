@@ -3,9 +3,14 @@ package com.mattfeury.cusack.services
 import org.json.JSONObject
 import com.mattfeury.cusack.util.Utils
 import scala.xml.XML
+import java.net.URI
 
-case class MusicBrainzArtistInfo(id:String, name:String)
-case class MusicBrainzUriRelation(`type`:String, target:String)
+case class MusicBrainzUriRelation(`type`:String, target:String) {
+    lazy val uri = new URI(target)
+
+    def hasHost(host:String) = uri.getHost() == host
+    def hasType(`type`:String) = this.`type` == `type`
+}
 
 trait MusicBrainzService extends RestService {
     val API_URL = "http://musicbrainz.org/ws/2/"
