@@ -117,7 +117,14 @@ object NowPlaying {
 
         override def doInBackground(refs:AnyRef*) = {
             val t = refs.toList.head.asInstanceOf[T]
-            doTask(t)
+            try {
+                doTask(t)
+            } catch {
+                case e:Exception =>
+                    Log.e(Cusack.TAG, "Error doing now playing task:\n" + e)
+                    e.printStackTrace()
+                case _:Throwable =>
+            }
         }
 
         override def onPostExecute(unit:Unit) : Unit = {

@@ -27,6 +27,10 @@ trait CusackReceiver <: Activity {
     }
 }
 
+object Cusack {
+    final def TAG = "Cusack"
+}
+
 class Cusack extends Activity with CusackReceiver {
 
     override def onCreate(savedInstanceState:Bundle) = {
