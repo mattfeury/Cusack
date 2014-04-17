@@ -4,7 +4,7 @@ import com.mattfeury.cusack.util.Utils
 import org.json.JSONObject
 import android.graphics.Bitmap
 
-case class LastFmArtistInfo(name:String, imageUrl:String) {
+case class LastFmArtistInfo(name:String, imageUrl:String, bio:String) {
     val imageBitmap = Utils.downloadBitmap(imageUrl)
 }
 
@@ -21,13 +21,18 @@ trait LastFmService extends RestService {
                 response <- response
                 json = new JSONObject(response)
                 artist = json.getJSONObject("artist")
+                bio = artist.getJSONObject("bio")
                 images = Utils.jsonArrayToList[JSONObject](artist.getJSONArray("image"))
             } yield {
                 val largestImage = images.collectFirst {
                     case json if json.get("size") == "mega" => json.get("#text").toString()
                 } getOrElse ""
 
-                LastFmArtistInfo(name = artist.get("name").toString(), imageUrl = largestImage)
+                LastFmArtistInfo(
+                    name = artist.get("name").toString(),
+                    imageUrl = largestImage,
+                    bio = Utils.stripHtml(bio.get("summary").toString())
+                )
             }
         })
     }
