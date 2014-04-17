@@ -15,11 +15,11 @@ trait TwitterService {
         val statuses = twitter4j.getUserTimeline(handle)
 
         // Find the best status by the one with the most favs + RTs and is not a reply/retweet
-        val bestStatusFor = { s:Status => s.getFavoriteCount() + s.getRetweetCount() }
+        val statusScoreFor = { s:Status => s.getFavoriteCount() + s.getRetweetCount() }
         val shouldDisallow = { s:Status => s.isRetweet() || s.getText().charAt(0) == '@' }
 
         val status:Option[Status] = statuses.asScala.foldLeft(None:Option[Status]) { (best, next) =>
-            if (best.map(! shouldDisallow(next) && bestStatusFor(next) > bestStatusFor(_)).getOrElse(true)) {
+            if (best.map(! shouldDisallow(next) && statusScoreFor(next) > statusScoreFor(_)).getOrElse(true)) {
                 Some(next)
             } else {
                 best
