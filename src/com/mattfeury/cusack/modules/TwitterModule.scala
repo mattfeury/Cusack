@@ -25,8 +25,6 @@ class TwitterModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribut
 
     override def render(view:View) = {
         val textView = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        textView.setTextAppearance(receiver, R.style.boldText)
-
         renderLogo(view)
 
         val text = {
@@ -36,10 +34,10 @@ class TwitterModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribut
                 handle = twitterInfo.handle
                 latestTweet = twitterInfo.latestTweet
             } yield {
-                s"$latestTweet\n\n-$handle"
+                s"$latestTweet\n\n@$handle"
             }
         } getOrElse {
-            "It's twitter, yo"
+            "-"
         }
 
         textView.setText(text)
