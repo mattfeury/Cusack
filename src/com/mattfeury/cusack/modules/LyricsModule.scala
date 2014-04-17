@@ -10,6 +10,9 @@ import android.widget.TextView
 import com.mattfeury.cusack.util.Utils
 
 class LyricsModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
+
+    override def logo = Some(R.drawable.mic)
+
     override def selected = {
         currentSong.foreach(sendToRapGenius _)
     }
@@ -21,6 +24,8 @@ class LyricsModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribute
 
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
+        renderLogo(view)
+
         val text = currentSong.map(_ => "Tap to search RapGenius").getOrElse("-")
         moduleText.setText(text)
     }

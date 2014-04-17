@@ -10,6 +10,9 @@ import android.view.ViewManager
 import android.widget.TextView
 
 class TwitterModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
+
+    override def logo = Some(R.drawable.twitter_logo)
+
     override def selected = {
         for {
             song <- currentSong
@@ -22,10 +25,9 @@ class TwitterModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribut
 
     override def render(view:View) = {
         val textView = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        val moduleImage = view.findViewById(R.id.moduleImage)
-
         textView.setTextAppearance(receiver, R.style.boldText)
-        moduleImage.getParent.asInstanceOf[ViewManager].removeView(moduleImage)
+
+        renderLogo(view)
 
         val text = {
             for {
