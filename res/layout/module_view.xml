@@ -9,7 +9,9 @@
     <ImageView
         android:id="@+id/moduleImage"
         android:layout_width="60dp"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
+        android:padding="12.5dp"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_launcher" />
 
     <TextView android:id="@+id/moduleText"
