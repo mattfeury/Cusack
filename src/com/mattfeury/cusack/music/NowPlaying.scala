@@ -83,7 +83,7 @@ object NowPlaying {
             artist.wikipediaPageInfo = {
                 for {
                     relations <- artist.musicBrainsUriRelations
-                    url <- relations.find(_.`type` == "wikipedia")
+                    url <- relations.find(_.hasType("wikipedia"))
                     pageTitle = WikipediaService.getPageTitleFromUrl(url.target)
                     pageInfo <- WikipediaService.getPageInfoForTitle(pageTitle)
                 } yield {
