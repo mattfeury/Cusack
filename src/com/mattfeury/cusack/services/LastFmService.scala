@@ -4,7 +4,8 @@ import com.mattfeury.cusack.util.Utils
 import org.json.JSONObject
 import android.graphics.Bitmap
 
-case class LastFmArtistInfo(name:String, imageUrl:String, bio:String) {
+case class LastFmArtistInfo(name:String, imageUrl:String, bio:String, url:String) {
+    // Don't make this lazy for some reason
     val imageBitmap = Utils.downloadBitmap(imageUrl)
 }
 
@@ -31,7 +32,8 @@ trait LastFmService extends RestService {
                 LastFmArtistInfo(
                     name = artist.get("name").toString(),
                     imageUrl = largestImage,
-                    bio = Utils.stripHtml(bio.get("summary").toString())
+                    bio = Utils.stripHtml(bio.get("summary").toString()),
+                    url = artist.get("url").toString()
                 )
             }
         })

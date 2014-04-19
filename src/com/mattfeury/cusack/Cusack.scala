@@ -43,6 +43,7 @@ class Cusack extends Activity with CusackReceiver {
             new ImageModule(this),
             new SongInfoModule(this),
             new WikipediaModule(this),
+            new LastFmBioModule(this),
             new LyricsModule(this),
             new TwitterModule(this)
         )
