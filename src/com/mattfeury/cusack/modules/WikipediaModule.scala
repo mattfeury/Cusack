@@ -15,8 +15,11 @@ import android.view.ViewManager
 import com.mattfeury.cusack.util.Utils
 
 
-class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
+class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) with Expandable[A] {
     override def logo = Some(R.drawable.wikipedia)
+
+    // always expanded for small single paragraphs
+    override def allowCollapse() = getTextToShow().length() > 420
 
     override def selected = {
         for {
@@ -33,16 +36,18 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
 
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        val moduleImage = view.findViewById(R.id.moduleImage)
+        moduleText.setText(getTextToShow())
+    }
 
-        val text = for {
-            song <- currentSong
-            artist = song.artist
-        } yield {
-            artist.wikipediaPageInfo.map { _.extract } getOrElse "Search for artist info"
-        }
-
-        moduleText.setText(text.getOrElse("-"))
-        moduleImage.getParent.asInstanceOf[ViewManager].removeView(moduleImage)
+    private def getTextToShow() = {
+        {
+            for {
+                song <- currentSong
+                artist = song.artist
+                extract = artist.wikipediaPageInfo.map(_.extract).getOrElse("Search for artist info")
+            } yield {
+                extract
+            }
+        } getOrElse ""
     }
 }

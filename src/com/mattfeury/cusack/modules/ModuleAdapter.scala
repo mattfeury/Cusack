@@ -1,13 +1,15 @@
 package com.mattfeury.cusack.modules
 
 import com.mattfeury.cusack.Cusack
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import com.mattfeury.cusack.modules.Expandable
+import com.mattfeury.cusack.R
+import com.mattfeury.cusack.CusackReceiver
 
 // ResourceID isn't really honored here...
 case class ModuleAdapter(context:Context, resourceId:Int, items:List[Module[Cusack]]) extends ArrayAdapter(context, resourceId, items.toArray) {
@@ -21,12 +23,20 @@ case class ModuleAdapter(context:Context, resourceId:Int, items:List[Module[Cusa
 
         module.render(view)
 
-        view.setOnClickListener(new OnClickListener() {
-            override def onClick(view:View) = {
-                module.selected()
-            }
-        })
+        // this should get moved to the module
+        module match {
+            case expandable:Expandable[Cusack] =>
+                view.findViewById(R.id.moduleImage).setOnClickListener(ScalaOnClick(v => expandable.onSelect()))
+                view.findViewById(R.id.moduleText).setOnClickListener(ScalaOnClick(v => expandable.toggle()))
+
+            case _ =>
+                view.setOnClickListener(ScalaOnClick(v => module.onSelect))
+        }
 
         return view;
+    }
+
+    case class ScalaOnClick(func:View=>Unit) extends OnClickListener() {
+        override def onClick(view:View) = func(view)
     }
 }

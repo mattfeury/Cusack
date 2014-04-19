@@ -19,6 +19,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/bgColor"
+        android:ellipsize="end"
         android:gravity="center_vertical"
         android:padding="10dp"
         android:text=""

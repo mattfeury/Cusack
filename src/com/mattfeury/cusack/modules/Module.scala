@@ -31,7 +31,60 @@ abstract class Module[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         }
     }
 
-    //def expanded
-    //def collapsed()
-    def selected()
+    def redraw() {
+        receiver.redraw()
+    }
+
+    def onSelect() = {
+        selected()
+    }
+
+    // Override these if you so choose
+    def selected() = {}
+}
+
+trait Expandable[T <: CusackReceiver with Context] extends Module[T] {
+    var isExpanded = false
+
+    def allowCollapse() = true
+
+    def toggle() = {
+        if (isExpanded) {
+            collapse()
+        } else {
+            expand()
+        }
+    }
+
+    def expand() = {
+        isExpanded = true
+        expanded()
+        redraw()
+    }
+
+    def collapse() : Unit = {
+        if (! allowCollapse) {
+            return
+        }
+
+        isExpanded = false
+        collapsed()
+        redraw()
+    }
+
+    def expanded() = {}
+    def collapsed() = {}
+
+    override def onRender(view:View) = {
+        super.onRender(view)
+
+        val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
+
+        if (isExpanded) {
+            moduleText.setMaxLines(Integer.MAX_VALUE)
+        } else if (allowCollapse()) {
+            moduleText.setMaxLines(3)
+        }
+
+    }
 }

@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 
-class LastFmBioModule[A <: CusackReceiver with Context](receiver: A, attrs: AttributeSet = null) extends Module(receiver, attrs) {
+class LastFmBioModule[A <: CusackReceiver with Context](receiver: A, attrs: AttributeSet = null) extends Module(receiver, attrs) with Expandable[A] {
   override def logo = Some(R.drawable.lastfm)
 
   override def selected = {
