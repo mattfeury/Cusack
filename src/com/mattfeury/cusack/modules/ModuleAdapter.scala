@@ -21,7 +21,7 @@ case class ModuleAdapter(context:Context, resourceId:Int, items:List[Module[Cusa
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
         val view = inflater.inflate(module.templateId, null)
 
-        module.render(view)
+        module.onRender(view)
 
         // this should get moved to the module
         module match {

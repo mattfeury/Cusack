@@ -26,7 +26,6 @@ class TwitterModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribut
 
     override def render(view:View) = {
         val textView = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        renderLogo(view)
 
         val text = {
             for {

@@ -18,14 +18,19 @@ abstract class Module[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         currentSong = Some(song)
     }
 
+    def onRender(view:View) = {
+        renderLogo(view)
+        render(view)
+    }
+
     def render(view:View)
 
     def renderLogo(view:View) = {
         logo match {
             case Some(resource) =>
-                    val moduleImage = view.findViewById(R.id.moduleImage).asInstanceOf[ImageView]
-                    val icon = receiver.getResources().getDrawable(resource)
-                    moduleImage.setImageDrawable(icon)
+                val moduleImage = view.findViewById(R.id.moduleImage).asInstanceOf[ImageView]
+                val icon = receiver.getResources().getDrawable(resource)
+                moduleImage.setImageDrawable(icon)
 
             case _ =>
         }

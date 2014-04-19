@@ -27,7 +27,6 @@ class LastFmBioModule[A <: CusackReceiver with Context](receiver: A, attrs: Attr
 
   override def render(view: View) = {
       val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-      renderLogo(view)
 
       val text = {
           for {

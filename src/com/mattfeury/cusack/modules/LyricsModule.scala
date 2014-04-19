@@ -24,8 +24,6 @@ class LyricsModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribute
 
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
-        renderLogo(view)
-
         val text = currentSong.map(_ => "Tap to search RapGenius").getOrElse("-")
         moduleText.setText(text)
     }
