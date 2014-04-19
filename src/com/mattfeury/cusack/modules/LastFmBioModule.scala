@@ -3,7 +3,6 @@ package com.mattfeury.cusack.modules
 import com.mattfeury.cusack.CusackReceiver
 import com.mattfeury.cusack.R
 import com.mattfeury.cusack.util.Utils
-
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
@@ -13,16 +12,16 @@ class LastFmBioModule[A <: CusackReceiver with Context](receiver: A, attrs: Attr
   override def logo = Some(R.drawable.lastfm)
 
   override def selected = {
-    for {
-      song <- currentSong
-      artist = song.artist
-    } {
-      val url = artist.lastFmArtistInfo.map { _.url } getOrElse {
-        "https://www.google.com/search?" + Utils.makeQueryString(Map("q" -> song.artist.name))
-      }
+      for {
+          song <- currentSong
+          artist = song.artist
+      } {
+          val url = artist.lastFmArtistInfo.map { _.url } getOrElse {
+              "https://www.google.com/search?" + Utils.makeQueryString(Map("q" -> song.artist.name))
+          }
 
-      receiver.openURIIntent(url)
-    }
+          receiver.openURIIntent(url)
+      }
   }
 
   override def render(view: View) = {
