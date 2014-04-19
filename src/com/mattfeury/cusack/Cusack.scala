@@ -28,7 +28,7 @@ trait CusackReceiver <: Activity {
 }
 
 object Cusack {
-    final def TAG = "Cusack"
+    final def TAG = "CUSACK"
 }
 
 class Cusack extends Activity with CusackReceiver {

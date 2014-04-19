@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import com.mattfeury.cusack.music.Song
+import com.mattfeury.cusack.Cusack
 
 class SongDetector extends BroadcastReceiver {
 
@@ -35,11 +36,11 @@ class SongDetector extends BroadcastReceiver {
     override def onReceive(context:Context, intent:Intent) = {
         val action = intent.getAction();
         val cmd = intent.getStringExtra("command");
-        Log.v("tag ", action + " / " + cmd);
+        Log.d(Cusack.TAG, action + " / " + cmd);
         val artist = intent.getStringExtra("artist");
         val album = intent.getStringExtra("album");
         val track = intent.getStringExtra("track");
-        Log.v("tag", artist + ":" + album + ":" + track);
+        Log.d(Cusack.TAG, artist + ":" + album + ":" + track);
 
         NowPlaying.setCurrentSong(artist, track, album)
         //Toast.makeText(activity, track, Toast.LENGTH_SHORT).show();
