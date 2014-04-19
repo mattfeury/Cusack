@@ -9,9 +9,8 @@
     <ImageView
         android:id="@+id/moduleImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:minHeight="250dp"
+        android:layout_height="250dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/icon_large" />
 
 </LinearLayout>
