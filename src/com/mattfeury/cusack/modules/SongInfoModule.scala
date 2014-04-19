@@ -25,7 +25,12 @@ class SongInfoModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribu
             songName = song.name
             albumName = song.album
         } {
-            textView.setText(s"$artistName is playing $songName from the album $albumName")
+            val verb = artistName match {
+                case artist if artist.matches("""(?i)the .*s""") => "are"
+                case _ => "is"
+            }
+
+            textView.setText(s"$artistName $verb playing $songName from the album $albumName")
         }
     }
 }
