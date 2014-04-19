@@ -19,18 +19,24 @@ class SongInfoModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribu
         textView.setTextAppearance(receiver, R.style.boldText)
         moduleImage.getParent.asInstanceOf[ViewManager].removeView(moduleImage)
 
-        for {
-            song <- currentSong
-            artistName = song.artist.name
-            songName = song.name
-            albumName = song.album
-        } {
-            val verb = artistName match {
-                case artist if artist.matches("""(?i)the .*s""") => "are"
-                case _ => "is"
-            }
+        val text = {
+            for {
+                song <- currentSong
+                artistName = song.artist.name
+                songName = song.name
+                albumName = song.album
+            } yield {
+                val verb = artistName match {
+                    case artist if artist.matches("""(?i)the .*s""") => "are"
+                    case _ => "is"
+                }
 
-            textView.setText(s"$artistName $verb playing $songName from the album $albumName")
+                s"$artistName $verb playing $songName from the album $albumName"
+            }
+        } getOrElse {
+            "Start playing a song to see information.\n\nIf a song is currently playing, it may need to be restarted."
         }
+
+        textView.setText(text)
     }
 }
