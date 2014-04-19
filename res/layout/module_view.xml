@@ -23,7 +23,7 @@
         android:padding="10dp"
         android:text=""
         android:textColor="@color/textColor"
-        android:textSize="22dp"
+        android:textSize="18dp"
         android:textStyle="normal" />
 
 </LinearLayout>

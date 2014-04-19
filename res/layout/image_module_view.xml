@@ -10,7 +10,7 @@
         android:id="@+id/moduleImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:minHeight="300dp"
+        android:minHeight="250dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_launcher" />
 
