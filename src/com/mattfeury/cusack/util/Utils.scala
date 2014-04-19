@@ -24,7 +24,7 @@ object Utils {
         list
     }
 
-    def stripHtml(html:String) : String = Html.fromHtml(html).toString
+    def stripHtml(html:String) : String = Html.fromHtml(html).toString.replaceAll("""\n*$""", "")
 
     def makeQueryString(params:Map[String, String]) : String = params.map {
         case (key, value) => URLEncoder.encode(key) + "=" + URLEncoder.encode(value)
