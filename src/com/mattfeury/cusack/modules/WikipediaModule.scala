@@ -16,6 +16,8 @@ import com.mattfeury.cusack.util.Utils
 
 
 class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) {
+    override def logo = Some(R.drawable.wikipedia)
+
     override def selected = {
         for {
             song <- currentSong
