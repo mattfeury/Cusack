@@ -70,6 +70,23 @@ trait WikipediaService {
         transformed.find(_.extract != "")
     }
 
+    def getImageFilenamesForTitle(title:String) : List[String] = {
+        makeUrlCall(Map(
+            ("action", "parse"),
+            ("prop", "text|images"),
+            ("page", title)
+        ), response => {
+            for {
+                response <- response.toList
+                json = new JSONObject(response)
+                parse = json.getJSONObject("parse")
+                image <- Utils.jsonArrayToList(parse.getJSONArray("images"))
+            } yield {
+                image
+            }
+        })
+    }
+
     private def makeUrlCall[T](params:Map[String, String], callback:Option[String]=>T) : T = {
         val url = URL + "?" + Utils.makeQueryString(params + ("format" -> "json"))
 
