@@ -19,7 +19,7 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
     override def logo = Some(R.drawable.wikipedia)
 
     // always expanded for small single paragraphs
-    override def allowCollapse() = getTextToShow().length() > 420
+    override def allowCollapse() = getTextToShow().length() > 320
 
     override def selected = {
         for {
