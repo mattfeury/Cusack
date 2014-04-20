@@ -109,9 +109,9 @@ class AboutDialogFragment extends DialogFragment {
                 Mixpanel.track("Tap Share (about dialog)")
 
                 val sendIntent = new Intent(android.content.Intent.ACTION_SEND)
-                sendIntent.putExtra(Intent.EXTRA_TEXT, R.string.share_text)
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getResources.getString(R.string.share_text))
                 sendIntent.setType("text/plain")
-                startActivity(sendIntent)
+                startActivity(Intent.createChooser(sendIntent, "Share Cusack with others"))
             }))
             .setNegativeButton("Leave\nsome feedback", DialogClickHandler((dialog, id) => {
                 Mixpanel.track("Tap Leave Feedback (about dialog)")
