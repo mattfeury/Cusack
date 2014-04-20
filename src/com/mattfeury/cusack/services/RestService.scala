@@ -15,7 +15,7 @@ trait RestService {
 
         val httpclient = new DefaultHttpClient()
         val get = new HttpGet(url)
-        get.setHeader("User-Agent", "Cusack Android App: mattfeury.com")
+        get.setHeader("User-Agent", "Cusack Android App: cusack@mattfeury.com")
         val httpResponse = httpclient.execute(get)
 
         httpResponse.getEntity().getContent() match {
