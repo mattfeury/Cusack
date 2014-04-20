@@ -34,7 +34,7 @@ class SongInfoModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribu
                 s"$artistName $verb playing $songName from the album $albumName"
             }
         } getOrElse {
-            "Start playing a song to see information.\n\nIf a song is currently playing, it may need to be restarted."
+            "Start playing music to see information.\n\nIf a song is currently playing, it may need to be restarted."
         }
 
         textView.setText(text)

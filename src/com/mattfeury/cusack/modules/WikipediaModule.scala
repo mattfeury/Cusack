@@ -48,6 +48,6 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
             } yield {
                 extract
             }
-        } getOrElse ""
+        } getOrElse "-"
     }
 }
