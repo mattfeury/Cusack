@@ -2,7 +2,10 @@
 <resources>
 
     <string name="app_name">Cusack</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="about_text">Welcome to Cusack, your Now Playing companion.\n\nThis app is currently in beta. There are many enhancements to come: Tour dates, customizable settings, etc.\n\nIn the meantime, you can help by giving some feedback and also by sharing the app with your friends.\n\nMade possible thanks to MusicBrainz, LastFM, Wikipedia, and Twitter.\n</string>
+    <string name="feedback_email_address">cusack@mattfeury.com</string>
+    <string name="feedback_email_subject">Cusack feedback</string>
+    <string name="share_text">Get to know your music with Cusack, only on Android: https://play.google.com/store/apps/details?id=com.mattfeury.cusack</string>
+    <string name="menu_about">About</string>
 
 </resources>
