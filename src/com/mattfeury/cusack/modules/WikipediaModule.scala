@@ -34,6 +34,17 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
         }
     }
 
+    // If there is no wiki, then this shouldn't really be in expandable mode, so we trigger selected() on expansion toggle
+    // This is kinda a hack.
+    override def toggle = {
+        super.toggle()
+
+        currentSong.flatMap(_.artist.wikipediaPageInfo.map(_.extract)) match {
+            case None => selected()
+            case _ =>
+        }
+    }
+
     override def render(view:View) = {
         val moduleText = view.findViewById(R.id.moduleText).asInstanceOf[TextView]
         moduleText.setText(getTextToShow())
