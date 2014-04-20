@@ -33,7 +33,7 @@ case class Artist(
 }
 
 case class Song(artist:Artist, name:String, album:String) {
-    override def toString() = s"$artist - $name - $album"
+    override def toString() = s"${artist.name} - $name - $album"
     def toMap() = Map(("artist" -> artist.name), ("name" -> name), ("album" -> album))
 }
 
