@@ -1,17 +1,17 @@
 package com.mattfeury.cusack.music
 
-import android.os.AsyncTask
-import com.mattfeury.cusack.services.WikipediaPageInfo
-import com.mattfeury.cusack.services.WikipediaService
+import com.mattfeury.cusack.Cusack
 import com.mattfeury.cusack.services.LastFmArtistInfo
 import com.mattfeury.cusack.services.LastFmService
 import com.mattfeury.cusack.services.MusicBrainzService
-import android.util.Log
-import com.mattfeury.cusack.Cusack
-import com.mattfeury.cusack.Cusack
 import com.mattfeury.cusack.services.MusicBrainzUriRelation
 import com.mattfeury.cusack.services.TwitterInfo
 import com.mattfeury.cusack.services.TwitterService
+import com.mattfeury.cusack.services.WikipediaPageInfo
+import com.mattfeury.cusack.services.WikipediaService
+import android.os.AsyncTask
+import android.util.Log
+import com.mattfeury.cusack.analytics.Mixpanel
 
 case class Artist(
     name:String,
@@ -34,6 +34,7 @@ case class Artist(
 
 case class Song(artist:Artist, name:String, album:String) {
     override def toString() = s"$artist - $name - $album"
+    def toMap() = Map(("artist" -> artist.name), ("name" -> name), ("album" -> album))
 }
 
 object NowPlaying {
@@ -140,6 +141,12 @@ object NowPlaying {
                 doTask(t)
             } catch {
                 case e:Exception =>
+                    Mixpanel.track("Error doing now playing task", Map(
+                        ("class" -> this.getClass().getSimpleName()),
+                        ("message" -> e.getMessage()),
+                        ("song" -> currentSong.map(_.toString).getOrElse("-"))
+                    ))
+
                     Log.e(Cusack.TAG, "Error doing now playing task:\n" + e)
                     e.printStackTrace()
                 case _:Throwable =>

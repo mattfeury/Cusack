@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.util.Log
 import com.mattfeury.cusack.music.Song
 import com.mattfeury.cusack.Cusack
+import com.mattfeury.cusack.analytics.Mixpanel
 
 class SongDetector extends BroadcastReceiver {
 
@@ -35,14 +36,22 @@ class SongDetector extends BroadcastReceiver {
 
     override def onReceive(context:Context, intent:Intent) = {
         val action = intent.getAction();
-        val cmd = intent.getStringExtra("command");
-        Log.d(Cusack.TAG, action + " / " + cmd);
         val artist = intent.getStringExtra("artist");
         val album = intent.getStringExtra("album");
         val track = intent.getStringExtra("track");
-        Log.d(Cusack.TAG, artist + ":" + album + ":" + track);
+        Log.d(Cusack.TAG, action + " : " + artist + ", " + album + ", " + track);
 
-        NowPlaying.setCurrentSong(artist, track, album)
-        //Toast.makeText(activity, track, Toast.LENGTH_SHORT).show();
+        val isValid = List(artist, album, track).forall(field => field != null && field.trim() != "")
+        if (isValid) {
+            NowPlaying.setCurrentSong(artist, track, album)
+        }
+
+        Mixpanel.track("Song detected", Map(
+            ("artist", artist),
+            ("album", album),
+            ("track", track),
+            ("isValid", isValid.toString),
+            ("action", action)
+        ))
     }
 }

@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
+import com.mattfeury.cusack.analytics.Mixpanel
 
 trait CusackReceiver <: Activity {
     var adapter:Option[ModuleAdapter] = None
@@ -44,6 +45,12 @@ class Cusack extends FragmentActivity with CusackReceiver {
     override def onCreate(savedInstanceState:Bundle) = {
         super.onCreate(savedInstanceState)
 
+        Mixpanel.setup(this)
+
+        if (savedInstanceState == null) {
+            Mixpanel.track("App Loaded")
+        }
+
         // Setup listeners. Does using this as a singleton make us more prone to memory leaks?
         NowPlaying.clearListeners()
 
@@ -57,6 +64,9 @@ class Cusack extends FragmentActivity with CusackReceiver {
         )
 
         modules.foreach(module => NowPlaying.registerSongListener(module.songChanged _))
+        NowPlaying.registerSongListener(song => {
+            Mixpanel.identify(Map("hasListened" -> "true"))
+        })
 
         setContentView(R.layout.activity_cusack)
 
@@ -76,8 +86,14 @@ class Cusack extends FragmentActivity with CusackReceiver {
         true
     }
 
+    protected override def onDestroy() {
+        Mixpanel.flush()
+        super.onDestroy()
+    }
+
     def showAbout(menuItem:MenuItem) = {
         new AboutDialogFragment().show(getFragmentManager, "about")
+        Mixpanel.track("Show About dialog")
     }
 }
 
@@ -90,13 +106,16 @@ class AboutDialogFragment extends DialogFragment {
             .setMessage(R.string.about_text)
             .setPositiveButton("Coolio", DialogClickHandler((d, id) => {}))
             .setNeutralButton("Cher\nthe app", DialogClickHandler((dialog, id) => {
-                val sendIntent = new Intent()
-                sendIntent.setAction(Intent.ACTION_SEND)
+                Mixpanel.track("Tap Share (about dialog)")
+
+                val sendIntent = new Intent(android.content.Intent.ACTION_SEND)
                 sendIntent.putExtra(Intent.EXTRA_TEXT, R.string.share_text)
                 sendIntent.setType("text/plain")
                 startActivity(sendIntent)
             }))
             .setNegativeButton("Leave\nsome feedback", DialogClickHandler((dialog, id) => {
+                Mixpanel.track("Tap Leave Feedback (about dialog)")
+
                 val emailIntent = new Intent(android.content.Intent.ACTION_SEND)
                 emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, Array(getResources.getString(R.string.feedback_email_address)))
                 emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, Array(getResources.getString(R.string.feedback_email_subject)))
