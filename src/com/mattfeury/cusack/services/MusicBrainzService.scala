@@ -4,6 +4,7 @@ import org.json.JSONObject
 import com.mattfeury.cusack.util.Utils
 import scala.xml.XML
 import java.net.URI
+import scala.xml.Node
 
 case class MusicBrainzUriRelation(`type`:String, target:String) {
     lazy val uri = new URI(target)
@@ -11,6 +12,9 @@ case class MusicBrainzUriRelation(`type`:String, target:String) {
     def hasHost(host:String) = uri.getHost() == host
     def hasType(`type`:String) = this.`type` == `type`
 }
+
+// TODO parse dat date
+case class MusicBrainzReleaseGroup(id:String, `type`:String, title:String, firstReleaseDate:String, uriRelations:List[MusicBrainzUriRelation])
 
 trait MusicBrainzService extends RestService {
     val API_URL = "http://musicbrainz.org/ws/2/"
@@ -40,11 +44,40 @@ trait MusicBrainzService extends RestService {
                 metadata = XML.loadString(response)
                 artist <- (metadata \ "artist")
                 relationList <- (artist \ "relation-list")
-                relation <- relationList \ "relation"
+                relation <- parseRelationList(relationList)
             } yield {
-                MusicBrainzUriRelation(`type` = (relation \ "@type").text, target = (relation \ "target").text)
+                relation
             }
         })
+    }
+
+    def getReleaseGroupsForArtist(artistId:String) : List[MusicBrainzReleaseGroup] = {
+        makeUrlCall("release-group", Map(
+            ("artist" -> artistId),
+            ("type" -> "album|ep"),
+            ("inc" -> "url-rels")
+        ), response => {
+            for {
+                response <- response.toList
+                metadata = XML.loadString(response)
+                releaseGroupList <- (metadata \ "release-group-list")
+                releaseGroup <- (releaseGroupList \ "release-group")
+            } yield {
+                MusicBrainzReleaseGroup(
+                    id = (releaseGroup \ "@id").text,
+                    `type` = (releaseGroup \ "@type").text,
+                    title = (releaseGroup \ "title").text,
+                    firstReleaseDate = (releaseGroup \ "first-release-date").text,
+                    uriRelations = (releaseGroup \ "relation-list").flatMap(parseRelationList(_)).toList
+                )
+            }
+        })
+    }
+
+    def parseRelationList(relationList:Node) : List[MusicBrainzUriRelation] = {
+        (relationList \ "relation").map { relation =>
+            MusicBrainzUriRelation(`type` = (relation \ "@type").text, target = (relation \ "target").text)
+        }.toList
     }
 
     private def makeUrlCall[T](endpoint:String, params:Map[String, String], callback:Option[String]=>T) : T = {
