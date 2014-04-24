@@ -24,7 +24,7 @@ class SongInfoModule[A <: CusackReceiver with Context](receiver:A, attrs:Attribu
                 song <- currentSong
                 artistName = song.artist.name
                 songName = song.name
-                albumName = song.album
+                albumName = song.album.name
             } yield {
                 val verb = artistName match {
                     case artist if artist.matches("""(?i)the .*s""") => "are"

@@ -12,9 +12,11 @@ import com.mattfeury.cusack.services.WikipediaService
 import android.os.AsyncTask
 import android.util.Log
 import com.mattfeury.cusack.analytics.Mixpanel
+import com.mattfeury.cusack.services.MusicBrainzReleaseGroup
 
 case class Artist(
     name:String,
+
     var wikipediaPageInfo:Option[WikipediaPageInfo] = None,
     var lastFmArtistInfo:Option[LastFmArtistInfo] = None,
 
@@ -32,21 +34,31 @@ case class Artist(
     def getTwitterUrl() = getUrlThatMatches(_.hasHost("twitter.com"))
 }
 
-case class Song(artist:Artist, name:String, album:String) {
-    override def toString() = s"${artist.name} - $name - $album"
-    def toMap() = Map(("artist" -> artist.name), ("name" -> name), ("album" -> album))
+case class Album(
+    name:String,
+    var wikipediaPageInfo:Option[WikipediaPageInfo] = None,
+    var musicBrainzReleaseGroup:Option[MusicBrainzReleaseGroup] = None
+)
+
+case class Song(artist:Artist, name:String, album:Album) {
+    override def toString() = s"${artist.name} - $name - ${album.name}"
+    def toMap() = Map(("artist" -> artist.name), ("name" -> name), ("album" -> album.name))
 }
 
 object NowPlaying {
     var currentSong:Option[Song] = None
     var songListenerHandlers:List[Song => Unit] = List()
 
-    def setCurrentSong(artistName:String, name:String, album:String) = {
-        val artist = currentSong match {
+    def setCurrentSong(artistName:String, name:String, albumName:String) = {
+        val (artist, album) = currentSong match {
             case Some(song) if song.artist.name == artistName =>
-                song.artist
+                if (song.album.name == albumName) {
+                    (song.artist, song.album)
+                } else {
+                    (song.artist, Album(name = albumName))
+                }
             case _ =>
-                fetchArtist(artistName)
+                (fetchArtist(artistName), Album(name = albumName))
         }
 
         val song = Song(artist, name, album)
