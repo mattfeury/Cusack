@@ -55,7 +55,7 @@ object NowPlaying {
                 if (song.album.name == albumName) {
                     (song.artist, song.album)
                 } else {
-                    (song.artist, Album(name = albumName))
+                    (song.artist, populateAlbum(song.artist, Album(name = albumName)))
                 }
             case _ =>
                 (fetchArtist(artistName), Album(name = albumName))
@@ -91,20 +91,45 @@ object NowPlaying {
         artist
     }
 
-    class GetWikipediaExtractTask extends NowPlayingTask[Artist] {
-        def doTask(artist:Artist) : Unit = {
-            artist.wikipediaPageInfo = {
+    private def populateAlbum(artist:Artist, album:Album) : Album = {
+        val albumTasks = List(
+            new GetWikipediaAlbumExtractTask()
+        )
+
+        albumTasks.foreach(_.execute(album))
+
+        album
+    }
+
+    class GetWikipediaArtistExtractTask extends GetWikipediaExtractTask[Artist] {
+        def handler(artist:Artist, info:Option[WikipediaPageInfo]) = artist.wikipediaPageInfo = info
+        def getRelations(artist:Artist) = artist.musicBrainsUriRelations.getOrElse(List())
+        def getFallback(artist:Artist) = Some(artist.name)
+    }
+
+    class GetWikipediaAlbumExtractTask extends GetWikipediaExtractTask[Album] {
+        def handler(album:Album, info:Option[WikipediaPageInfo]) = album.wikipediaPageInfo = info
+        def getRelations(album:Album) = album.musicBrainzReleaseGroup.map(_.uriRelations).getOrElse(List())
+        def getFallback(album:Album) = None
+    }
+
+    abstract class GetWikipediaExtractTask[K] extends NowPlayingTask[K] {
+        def handler(k:K, info:Option[WikipediaPageInfo])
+        def getRelations(k:K) : List[MusicBrainzUriRelation]
+        def getFallback(k:K) : Option[String]
+
+        def doTask(k:K) : Unit = {
+            handler(k, {
                 for {
-                    relations <- artist.musicBrainsUriRelations
-                    url <- relations.find(_.hasType("wikipedia"))
+                    url <- getRelations(k).find(_.hasType("wikipedia"))
                     pageTitle = WikipediaService.getPageTitleFromUrl(url.target)
                     pageInfo <- WikipediaService.getPageInfoForTitle(pageTitle)
                 } yield {
                     pageInfo
                 }
             } orElse {
-                WikipediaService.getPageInfoForKeyword(artist.name)
-            }
+                getFallback(k).flatMap(WikipediaService.getPageInfoForKeyword(_))
+            })
         }
     }
 
@@ -122,7 +147,8 @@ object NowPlaying {
 
             val urlTasks = List(
                 new GetTwitterTask(),
-                new GetWikipediaExtractTask()
+                new GetWikipediaArtistExtractTask(),
+                new GetMusicBrainzAlbumInfoTask()
             )
 
             urlTasks.foreach(_.execute(artist))
@@ -139,6 +165,21 @@ object NowPlaying {
                 } yield {
                     TwitterInfo(handle = handle, latestTweet = latestTweet)
                 }
+            }
+        }
+    }
+
+    class GetMusicBrainzAlbumInfoTask extends NowPlayingTask[Artist] {
+        def doTask(artist:Artist) : Unit = {
+            for {
+                song <- currentSong if song.album.musicBrainzReleaseGroup.isEmpty
+                artistId <- song.artist.musicBrainzId
+                releaseGroups = MusicBrainzService.getReleaseGroupsForArtist(artistId)
+                releaseGroup <- releaseGroups.find(_.title == song.album.name)
+            } {
+                song.album.musicBrainzReleaseGroup = Some(releaseGroup)
+
+                populateAlbum(song.artist, song.album)
             }
         }
     }
