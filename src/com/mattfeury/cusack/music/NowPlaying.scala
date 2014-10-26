@@ -14,17 +14,20 @@ import android.util.Log
 import com.mattfeury.cusack.analytics.Mixpanel
 import com.mattfeury.cusack.services.MusicBrainzReleaseGroup
 
-case class Artist(
+trait WikipediaKnowledgable {
+    val name:String
+    var wikipediaPageInfo:Option[WikipediaPageInfo] = None
+}
+case class Artist (
     name:String,
 
-    var wikipediaPageInfo:Option[WikipediaPageInfo] = None,
     var lastFmArtistInfo:Option[LastFmArtistInfo] = None,
 
     var musicBrainzId:Option[String] = None,
     var musicBrainsUriRelations:Option[List[MusicBrainzUriRelation]] = None,
 
     var twitterInfo:Option[TwitterInfo] = None
-) {
+) extends WikipediaKnowledgable {
 
     private def getUrlThatMatches(closure:MusicBrainzUriRelation=>Boolean) : Option[MusicBrainzUriRelation] = {
         musicBrainsUriRelations.flatMap(_.find(closure(_)))
@@ -36,9 +39,8 @@ case class Artist(
 
 case class Album(
     name:String,
-    var wikipediaPageInfo:Option[WikipediaPageInfo] = None,
     var musicBrainzReleaseGroup:Option[MusicBrainzReleaseGroup] = None
-)
+) extends WikipediaKnowledgable
 
 case class Song(artist:Artist, name:String, album:Album) {
     override def toString() = s"${artist.name} - $name - ${album.name}"

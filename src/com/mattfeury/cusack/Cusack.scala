@@ -1,14 +1,15 @@
 package com.mattfeury.cusack
 
+import com.mattfeury.cusack.analytics.Mixpanel
+import com.mattfeury.cusack.modules.AlbumWikipediaModule
+import com.mattfeury.cusack.modules.ArtistWikipediaModule
 import com.mattfeury.cusack.modules.ImageModule
 import com.mattfeury.cusack.modules.LastFmBioModule
 import com.mattfeury.cusack.modules.LyricsModule
 import com.mattfeury.cusack.modules.ModuleAdapter
 import com.mattfeury.cusack.modules.SongInfoModule
 import com.mattfeury.cusack.modules.TwitterModule
-import com.mattfeury.cusack.modules.WikipediaModule
 import com.mattfeury.cusack.music.NowPlaying
-
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
@@ -21,7 +22,6 @@ import android.support.v4.app.FragmentActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
-import com.mattfeury.cusack.analytics.Mixpanel
 import android.content.Context
 import android.view.LayoutInflater
 
@@ -59,8 +59,9 @@ class Cusack extends FragmentActivity with CusackReceiver {
         val modules = List(
             new ImageModule(this),
             new SongInfoModule(this),
-            new WikipediaModule(this),
+            new ArtistWikipediaModule(this),
             new LastFmBioModule(this),
+            new AlbumWikipediaModule(this),
             new LyricsModule(this),
             new TwitterModule(this)
         )

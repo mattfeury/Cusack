@@ -13,10 +13,16 @@ import android.widget.TextView
 import com.mattfeury.cusack.services.WikipediaPageInfo
 import android.view.ViewManager
 import com.mattfeury.cusack.util.Utils
+import com.mattfeury.cusack.music.WikipediaKnowledgable
 
 
-class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) with Expandable[A] {
+abstract class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:AttributeSet = null) extends Module(receiver, attrs) with Expandable[A] {
+    def wikipediaKnowledge : Option[WikipediaKnowledgable]
+    def emptyStateText : String
+
     override def logo = Some(R.drawable.wikipedia)
+
+    def wikipediaInfo : Option[WikipediaPageInfo] = wikipediaKnowledge.flatMap(_.wikipediaPageInfo)
 
     // always expanded for small single paragraphs
     override def allowCollapse() = getTextToShow().length() > 320
@@ -24,22 +30,20 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
     override def selected = {
         for {
             song <- currentSong
-            artist = song.artist
+            wikipediaKnowledge <- wikipediaKnowledge
         } {
             // If no wikipedia article, click to google search
-            val url = artist.wikipediaPageInfo.map { _.getUrl() } getOrElse {
-                "https://www.google.com/search?" + Utils.makeQueryString(Map("q" -> song.artist.name))
+            val url = wikipediaInfo.map { _.getUrl() } getOrElse {
+                "https://www.google.com/search?" + Utils.makeQueryString(Map("q" -> wikipediaKnowledge.name))
             }
             receiver.openURIIntent(url)
         }
     }
 
-    // If there is no wiki, then this shouldn't really be in expandable mode, so we trigger selected() on expansion toggle
-    // This is kinda a hack.
     override def toggle = {
         super.toggle()
 
-        currentSong.flatMap(_.artist.wikipediaPageInfo.map(_.extract)) match {
+        wikipediaInfo match {
             case None => selected()
             case _ =>
         }
@@ -55,10 +59,20 @@ class WikipediaModule[A <: CusackReceiver with Context](receiver:A, attrs:Attrib
             for {
                 song <- currentSong
                 artist = song.artist
-                extract = artist.wikipediaPageInfo.map(_.extract).getOrElse("Search for artist info")
+                extract = wikipediaInfo.map(_.extract).getOrElse(emptyStateText)
             } yield {
                 extract
             }
         } getOrElse "-"
     }
+}
+
+class ArtistWikipediaModule[A <: CusackReceiver with Context](receiver:A) extends WikipediaModule(receiver, null) {
+    def wikipediaKnowledge : Option[WikipediaKnowledgable] = currentSong.map(_.artist)
+    def emptyStateText : String = "Search for artist info"
+}
+
+class AlbumWikipediaModule[A <: CusackReceiver with Context](receiver:A) extends WikipediaModule(receiver, null) {
+    def wikipediaKnowledge : Option[WikipediaKnowledgable] = currentSong.map(_.album)
+    def emptyStateText : String = "Search for album info"
 }
