@@ -22,6 +22,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
 import com.mattfeury.cusack.analytics.Mixpanel
+import android.content.Context
+import android.view.LayoutInflater
 
 trait CusackReceiver <: Activity {
     var adapter:Option[ModuleAdapter] = None
@@ -79,6 +81,39 @@ class Cusack extends FragmentActivity with CusackReceiver {
         NowPlaying.registerSongListener(_ => moduleAdapter.notifyDataSetChanged())
 
         NowPlaying.runHandlers()
+
+        showWelcome()
+    }
+
+    val welcomeName = "spotifyBug-10-14"
+    val WELCOME_DIALOG = 0
+    def showWelcome() {
+        val prefs = getPreferences(Context.MODE_PRIVATE)
+        val shouldShow = prefs.getBoolean(welcomeName, true)
+        if (shouldShow) {
+            val editor = prefs.edit()
+            editor.putBoolean(welcomeName, false)
+            editor.commit()
+            showDialog(WELCOME_DIALOG)
+        }
+    }
+
+    protected override def onCreateDialog(id:Int) : Dialog = {
+        val builder = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+        id match {
+            case WELCOME_DIALOG =>
+                builder
+                    .setTitle("Spotify bug fixed")
+                    .setView(LayoutInflater.from(this).inflate(R.layout.welcome_layout, null))
+                    .setCancelable(false)
+                    .setPositiveButton("Groovy", new DialogInterface.OnClickListener() {
+                        def onClick(dialog: DialogInterface, id: Int) {}
+                    })
+            case _ =>
+        }
+
+        val alert = builder.create()
+        return alert
     }
 
     override def onCreateOptionsMenu(menu:Menu) : Boolean = {
