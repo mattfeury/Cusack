@@ -177,7 +177,7 @@ object NowPlaying {
                 song <- currentSong if song.album.musicBrainzReleaseGroup.isEmpty
                 artistId <- song.artist.musicBrainzId
                 releaseGroups = MusicBrainzService.getReleaseGroupsForArtist(artistId)
-                releaseGroup <- releaseGroups.find(_.title == song.album.name)
+                releaseGroup <- releaseGroups.find(_.matchesTitle(song.album.name))
             } {
                 song.album.musicBrainzReleaseGroup = Some(releaseGroup)
 

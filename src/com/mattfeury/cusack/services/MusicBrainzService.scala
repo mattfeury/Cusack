@@ -14,7 +14,16 @@ case class MusicBrainzUriRelation(`type`:String, target:String) {
 }
 
 // TODO parse dat date
-case class MusicBrainzReleaseGroup(id:String, `type`:String, title:String, firstReleaseDate:String, uriRelations:List[MusicBrainzUriRelation])
+case class MusicBrainzReleaseGroup(id:String, `type`:String, title:String, firstReleaseDate:String, uriRelations:List[MusicBrainzUriRelation]) {
+
+    def matchesTitle(otherTitle:String) = {
+        val toPieces = { string:String => string.toLowerCase().replaceAll("""[^A-Za-z0-9 ]""", "").split(" ").toSet }
+        val pieces = toPieces(title)
+        val otherPieces = toPieces(otherTitle)
+
+        pieces.forall(otherPieces.contains(_)) || otherPieces.forall(pieces.contains(_))
+    }
+}
 
 trait MusicBrainzService extends RestService {
     val API_URL = "http://musicbrainz.org/ws/2/"
