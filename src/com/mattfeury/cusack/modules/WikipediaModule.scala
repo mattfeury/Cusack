@@ -73,6 +73,8 @@ class ArtistWikipediaModule[A <: CusackReceiver with Context](receiver:A) extend
 }
 
 class AlbumWikipediaModule[A <: CusackReceiver with Context](receiver:A) extends WikipediaModule(receiver, null) {
+    override def logo = Some(R.drawable.cassette_tape)
+
     def wikipediaKnowledge : Option[WikipediaKnowledgable] = currentSong.map(_.album)
     def emptyStateText : String = "Search for album info"
 }
